@@ -240,7 +240,12 @@ SUBROUTINE med_nest_move ( parent, nest )
        grid%restart = .FALSE.
        CALL nl_set_restart ( 1, .FALSE. )
        grid%press_adj = .FALSE.
+! The parent is being re-initialized in the middle of the run, so mark it as moved:
+! otherwise start_domain resets its itimestep to 0 and phy_init clears its surface
+! fields (HFX, QFX, UST, PBLH, ...) as if this were the initial time.
+       parent%moved = .TRUE.
        CALL start_domain ( parent , .FALSE. )
+       parent%moved = .FALSE.
        config_flags%restart = saved_restart_value
        grid%restart = saved_restart_value
        CALL nl_set_restart ( 1,  saved_restart_value )
